@@ -1,12 +1,20 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import TodoInput from "@/components/todo-input"
 import TodoList from "@/components/todo-list"
 import type { Todo } from "@/types"
 
 export default function Page() {
   const [todos, setTodos] = useState<Todo[]>([])
+  const [message, setMessage] = useState<string>("")
+
+  useEffect(() => {
+    fetch("http://localhost:4000")
+      .then((res) => res.text())
+      .then((data) => setMessage(data))
+      .catch((err) => console.error("Failed to fetch message:", err))
+  }, [])
 
   const addTodo = (text: string) => {
     const newTodo: Todo = {
@@ -33,6 +41,7 @@ export default function Page() {
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">My Tasks</h1>
+          {message && <p className="text-lg text-blue-600 dark:text-blue-400 mb-2">{message}</p>}
           <p className="text-slate-600 dark:text-slate-400">
             {completedCount} of {todos.length} completed
           </p>
