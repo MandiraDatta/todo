@@ -1,0 +1,21 @@
+// src/todo/todo.service.ts (Example)
+
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service'; // Your working Prisma client
+
+@Injectable()
+export class TodoService {
+  constructor(private prisma: PrismaService) {}
+
+  // Function that interacts directly with the Prisma Client
+  async create(text: string) {
+    // 2. Use the Prisma Client's create method to INSERT the data
+    return this.prisma.todo.create({
+      data: {
+        text: text,
+        // The other fields (id, createdAt, completed) will use their defaults
+      },
+    });
+  }
+}
+
