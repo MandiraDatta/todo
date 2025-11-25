@@ -24,6 +24,14 @@ export default function Page() {
       createdAt: new Date(),
     }
     setTodos([newTodo, ...todos])
+    fetch("http://localhost:4000/todos", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newTodo),
+    })
+    .catch((err) => console.error("Failed to add todo:", err))
   }
 
   const toggleTodo = (id: string) => {

@@ -17,5 +17,9 @@ export class TodoService {
       },
     });
   }
+
+  async findAll() {
+    return this.prisma.todo.findMany();
+  }
 }
 

@@ -1,6 +1,6 @@
 // src/todo/todo.controller.ts (Example)
 
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { TodoService } from './todo.service'; // Assuming you have a TodoService
 
 @Controller('todos') // Base route for all todo-related endpoints
@@ -15,7 +15,10 @@ export class TodoController {
     // 1. Pass the received data to the service layer for database interaction
     return this.todoService.create(taskText);
   }
- 
+  @Get()
+  async findAll() {
+    return this.todoService.findAll();
+  }
 }
 
 
