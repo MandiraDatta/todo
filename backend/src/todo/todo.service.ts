@@ -19,7 +19,24 @@ export class TodoService {
   }
 
   async findAll() {
-    return this.prisma.todo.findMany();
+    return this.prisma.todo.findMany({
+      orderBy: {
+        createdAt: 'desc', // Most recent first
+      },
+    });
+  }
+
+  async update(id: string, completed: boolean) {
+    return this.prisma.todo.update({
+      where: { id },
+      data: { completed },
+    });
+  }
+
+  async delete(id: string) {
+    return this.prisma.todo.delete({
+      where: { id },
+    });
   }
 }
 

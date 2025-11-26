@@ -4,9 +4,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { TodoModule } from './todo/todo.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), PrismaModule, TodoModule],
+  imports: [ConfigModule.forRoot(), PrismaModule, TodoModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })

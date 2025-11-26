@@ -1,71 +1,57 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import TodoInput from "@/components/todo-input"
-import TodoList from "@/components/todo-list"
-import type { Todo } from "@/types"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default function Page() {
-  const [todos, setTodos] = useState<Todo[]>([])
-  const [message, setMessage] = useState<string>("")
+export default function LoginPage() {
+    const router = useRouter();
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
 
-  useEffect(() => {
-    fetch("http://localhost:4000")
-      .then((res) => res.text())
-      .then((data) => setMessage(data))
-      .catch((err) => console.error("Failed to fetch message:", err))
-  }, [])
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
 
-  const addTodo = (text: string) => {
-    const newTodo: Todo = {
-      id: Date.now().toString(),
-      text,
-      completed: false,
-      createdAt: new Date(),
-    }
-    setTodos([newTodo, ...todos])
-    fetch("http://localhost:4000/todos", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newTodo),
-    })
-    .catch((err) => console.error("Failed to add todo:", err))
-  }
+        const res = await fetch("http://localhost:4000/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+        });
 
-  const toggleTodo = (id: string) => {
-    setTodos(todos.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo)))
-  }
+        const data = await res.json();
 
-  const deleteTodo = (id: string) => {
-    setTodos(todos.filter((todo) => todo.id !== id))
-  }
+        if (data.success) {
+            localStorage.setItem("auth", "true");
+            router.push("/tasks");
+        } else {
+            alert(data.message);
+        }
+    };
 
-  const completedCount = todos.filter((todo) => todo.completed).length
+    return (
+        <div className="flex justify-center items-center min-h-screen bg-gray-100">
+            <form onSubmit={handleLogin} className="bg-white p-6 rounded-lg shadow-md w-80">
+                <h2 className="text-xl font-bold mb-4 text-center">Login</h2>
 
-  return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">My Tasks</h1>
-          {message && <p className="text-lg text-blue-600 dark:text-blue-400 mb-2">{message}</p>}
-          <p className="text-slate-600 dark:text-slate-400">
-            {completedCount} of {todos.length} completed
-          </p>
+                <input
+                    type="text"
+                    placeholder="Username"
+                    className="w-full p-2 border mb-3 rounded"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                />
+
+                <input
+                    type="password"
+                    placeholder="Password"
+                    className="w-full p-2 border mb-4 rounded"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+
+                <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
+                    Login
+                </button>
+            </form>
         </div>
-
-        <div className="space-y-6">
-          <TodoInput onAdd={addTodo} />
-          <TodoList todos={todos} onToggle={toggleTodo} onDelete={deleteTodo} />
-        </div>
-
-        {todos.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-slate-500 dark:text-slate-400 text-lg">No tasks yet. Add one to get started! ✨</p>
-          </div>
-        )}
-      </div>
-    </main>
-  )
+    );
 }
