@@ -6,15 +6,21 @@ import * as bcrypt from 'bcrypt';
 export class AuthService {
   constructor(private prisma: PrismaService) {}
 
-  async register(data: any) {
-    const hashed = await bcrypt.hash(data.password, 10);
+  async register(dto: { username: string; password: string }) {
+    try {
+      const hashed = await bcrypt.hash(dto.password, 10);
 
-    return this.prisma.user.create({
-      data: {
-        username: data.username,
-        password: hashed,
-      },
-    });
+      const user = await this.prisma.user.create({
+        data: {
+          username: dto.username,
+          password: hashed,
+        },
+      });
+
+      return { success: true, message: "User registered successfully", user };
+    } catch (err) {
+      return { success: false, message: "Username already exists" };
+    }
   }
 
   async login(data: any) {
@@ -28,6 +34,6 @@ export class AuthService {
 
     if (!isValid) return { success: false, message: "Incorrect password" };
 
-    return { success: true, user };
+    return { success: true, message: "Login successful", user };
   }
 }

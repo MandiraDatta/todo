@@ -3,34 +3,48 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+export default function AuthPage() {
     const router = useRouter();
+    const [isLogin, setIsLogin] = useState(true); // toggle login / signup
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async (e:any) => {
+    e.preventDefault();
 
-        const res = await fetch("http://localhost:4000/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password }),
-        });
+    const url = isLogin
+        ? "http://localhost:4000/auth/login"
+        : "http://localhost:4000/auth/register";
 
-        const data = await res.json();
+    const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+    });
 
-        if (data.success) {
+    const data = await res.json();
+
+    if (data.success) {
+        alert(data.message);  // ✔ FIXED
+
+        if (isLogin) {
             localStorage.setItem("auth", "true");
             router.push("/tasks");
         } else {
-            alert(data.message);
+            setIsLogin(true);
         }
-    };
+    } else {
+        alert(data.message);
+    }
+};
+
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-100">
-            <form onSubmit={handleLogin} className="bg-white p-6 rounded-lg shadow-md w-80">
-                <h2 className="text-xl font-bold mb-4 text-center">Login</h2>
+            <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md w-80">
+                <h2 className="text-xl font-bold mb-4 text-center">
+                    {isLogin ? "Login" : "Sign Up"}
+                </h2>
 
                 <input
                     type="text"
@@ -48,10 +62,39 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                 />
 
-                <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
-                    Login
+                <button
+                    type="submit"
+                    className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+                >
+                    {isLogin ? "Login" : "Create Account"}
                 </button>
+
+                {/* Toggle Button */}
+                <p className="text-center mt-4 text-sm">
+                    {isLogin ? (
+                        <>
+                            Don’t have an account?{" "}
+                            <span
+                                className="text-blue-600 cursor-pointer"
+                                onClick={() => setIsLogin(false)}
+                            >
+                                Sign Up
+                            </span>
+                        </>
+                    ) : (
+                        <>
+                            Already have an account?{" "}
+                            <span
+                                className="text-blue-600 cursor-pointer"
+                                onClick={() => setIsLogin(true)}
+                            >
+                                Login
+                            </span>
+                        </>
+                    )}
+                </p>
             </form>
         </div>
     );
 }
+
